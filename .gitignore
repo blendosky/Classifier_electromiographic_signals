@@ -1,0 +1,13 @@
+
+/venv/
+
+/datashets
+
+*.pickle
+
+*.csv
+
+*.txt
+
+/datashets/*.txt
+
