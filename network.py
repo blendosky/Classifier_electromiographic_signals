@@ -15,7 +15,10 @@ iris = datasets.load_iris()
 X = iris.data[:, :3]  # we only take the first two features.
 y = iris.target
 
-print(X[:10,:2])
+
+print(X)
+print(np.shape(X))
+print(np.shape(y))
 
 fig, axs = plt.subplots(2)
 fig.suptitle("compare y datashets and y_classifier")
