@@ -27,7 +27,7 @@ X = data[['channel1','channel2','channel3','channel4','channel5','channel6','cha
 y = data['class']
 X.reset_index(inplace=True, drop=True)
 y.reset_index(inplace=True, drop=True)
-y.fillna(0, inplace=True)
+y.fillna(1, inplace=True)
 a = y.isnull()
 print(a)
 rta = a[a == True]

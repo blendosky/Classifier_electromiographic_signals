@@ -1,108 +1,76 @@
-import numpy as np
 import matplotlib.pyplot as plt
-from sklearn import preprocessing
-from keras.models import Sequential
-from keras.layers import Dense
-from scipy import signal
-from scipy.signal import butter
+import pandas as pd
+from scipy.stats import norm
+import numpy as np
+import tensorflow as tf
 
 
-datos = []
-with open('datashets/1.txt') as fname:
-	lineas = fname.readlines()
-	for linea in lineas:
-		datos.append(linea.strip('\n'))
-
-datos.pop(0)
-datos.pop(0)
-
-database=[]
-
-for prof in datos:
-	database.append(prof.split())
-	
-dat = []
-for x in database:
-	sublist = []
-	for xin in x:
-		sublist.append(float(xin))
-	dat.append(sublist)
-
-
-
-dat = np.array(dat, dtype=float)
-#print(dat[:10,:2])#database complete ok, its name is dat
-#dat=sklearn.utils.shuffle(dat)
-
-
-print(dat)
-
-
-
-X = []
-y = []
-#preprocesamiento
-for fil in dat:
-	if fil[9]!=0:
-		X.append(fil[1:9])
-		y.append(fil[9])
-
-	
-
-X = np.array(X, dtype=float)
-y = np.array(y, dtype=float)
-
-print(X)
-print(y)
-
-scaler = preprocessing.MinMaxScaler(feature_range=(-1, 1))
-
-X = scaler.fit_transform(X)
-X = np.round(X,3)
-
-frec_corte = 250 #low pass filter frecuency
-sos = butter(15, frec_corte, btype="low", fs=1000, output="sos")
-
-for i in range(1,8):
-    filtd = np.array(signal.sosfilt(sos, X[:,i]))
-    X[:,i] = filtd
-
+#function of normalizated min max
 def minmax_norm(df_input):
-    return (df_input - df_input.min()) / ( df_input.max() - df_input.min()) * 2 - 1
+    return (df_input - df_input.min()) / ( df_input.max() - df_input.min())*2 - 1
+# Create a dataframe with all the data without preprocessing
 
-X = minmax_norm(X)
+frames = []
+for i in range(1,73):
+    df = pd.read_csv("datashets/"+str(i)+".txt", sep="\t")
+    frames.append(df)
 
-print(X)
+data = pd.concat(frames)
 
-fig, axs = plt.subplots(2)
-axs[0].grid()
-axs[0].plot(X[:,7])#ejemplo señal canal 1
-axs[1].plot(y)#ejemplo señal canal 1
-plt.show()
+data.drop(['time'], axis=1, inplace=True)
 
+data.reset_index(inplace=True, drop=True)
 
+print(data.shape)
 
-
-
-model = Sequential()
-model.add(Dense(150, input_dim=8, activation='sigmoid'))
-model.add(Dense(100, activation='sigmoid'))
-model.add(Dense(1, activation='linear'))
-
-#Nadam fue el mejor optimizador que encontré
-model.compile(loss='mean_squared_error',
- 	      optimizer='Adam',
-		  metrics = ["accuracy"])
+data.loc[data['class'] == 7 , ['class']] = 0
 
 
-model.fit(X,y, epochs=110)
 
-score = model.evaluate(X,y)
-print(score)
-y_predict = model.predict(X).round()
+data[['channel1','channel2','channel3','channel4','channel5','channel6','channel7','channel8']] = minmax_norm(data[['channel1','channel2','channel3','channel4','channel5','channel6','channel7','channel8']])
+data.loc[data['class'] == 0 , ['channel1','channel2','channel3','channel4','channel5','channel6','channel7','channel8']] = 0
 
-plt.figure(2)
+data_class = data['class']
+
+data.drop(data_class.index[data_class == 0], axis=0, inplace=True)
+       
+data.reset_index(inplace=True, drop=True)
+
+print(data.shape)
+
+#agregar el rms y prueba de entrenamiento
+filas, columnas = data.shape
+div = 50
+
+iter = 0
+data_comp = pd.DataFrame(columns = ['channel1','channel2','channel3','channel4','channel5','channel6','channel7','channel8', 'class'])
+print(data_comp)
+for i in range(1,int(filas/div)+1):
+    data_bloque = data.iloc[iter:(i*div),:].pow(2)
+    data_bloque = ((data_bloque.sum()).div(div)).pow(0.5)
+    iter = iter + div
+    data_comp = pd.concat([data_comp, pd.DataFrame([data_bloque])], ignore_index=True)
+
+#plotea el canal con rms, comparandolo con la clase --> el nivel de reduccion depende de la variable div
+plt.figure()
+plt.plot(data_comp['channel1'])
+plt.plot(data_comp['class'])
 plt.grid()
-plt.plot(y_predict,'r')#clasificación de la red neuronal
-plt.plot(y,color = 'tab:green')#clasificación de la base de datos
 plt.show()
+
+print(data_comp.shape)
+
+#quitar el vrms directamente de los saltos (no da numeros enteros, agregando otras clases incorrectas)
+data_comp['compare'] = data_comp['class'].apply(lambda x: True if x == 1 or x == 2 or x == 3 
+                                                or x == 4 or x == 5 or x == 6 else False)
+compare = data_comp['compare']
+data_comp.drop(compare.index[compare == False], axis=0, inplace=True)  
+data_comp.drop(['compare'], axis=1, inplace=True)
+data.reset_index(inplace=True, drop=True)
+
+
+
+
+#guardar el dataframe
+data_comp.to_csv('database_reduc.csv', header=True, index=False)
+print(data_comp.shape)

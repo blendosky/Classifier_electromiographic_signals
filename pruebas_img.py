@@ -15,6 +15,7 @@ with open('datashets/1.txt') as fname:
 datos.pop(0)
 
 dat = np.array(datos, dtype=float)
+
 scaler = preprocessing.MinMaxScaler(feature_range=(0, 1))
 dat = scaler.fit_transform(dat)
 res = cv2.resize(dat, dsize=(28, 28), interpolation=cv2.INTER_LINEAR)
