@@ -10,7 +10,7 @@ from tensorflow import keras
 
 size = (28,28)
 
-dataframe = pd.read_csv('database_reduc.csv')
+dataframe = pd.read_csv('database_reduc_rms.csv')
 dataframe = dataframe.to_numpy()
 filas, columnas = dataframe.shape
 label = []
@@ -162,8 +162,6 @@ new_model = keras.models.load_model('modelo_conv2')
 
 
 eval = new_model.evaluate(X_pruebas, Y_pruebas)
-
-
 
 
 print(eval)

@@ -9,7 +9,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 size = (28,28)
 
-dataframe = pd.read_csv('database_reduc.csv')
+dataframe = pd.read_csv('database_reduc_rms.csv')
 dataframe = dataframe.to_numpy()
 filas, columnas = dataframe.shape
 label = []
