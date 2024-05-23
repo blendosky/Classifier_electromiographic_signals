@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import tensorflow as tf
 from tensorflow import keras
-
+from sklearn.metrics import ConfusionMatrixDisplay
 
 #Carga las bases de datos de testeo o validacion 
 X_pruebas = np.load("X_pruebas.npy")
@@ -26,5 +26,9 @@ print(eval)
 y_res = new_model.predict(X_pruebas)
 y_res = y_res.round()
 
+print(y_res.shape)
+print(Y_pruebas.shape)
 
-print(y_res==Y_pruebas)
+
+disp = ConfusionMatrixDisplay.from_predictions(Y_pruebas.argmax(axis=1), y_res.argmax(axis=1))
+plt.show()

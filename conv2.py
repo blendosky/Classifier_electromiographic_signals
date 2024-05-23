@@ -10,7 +10,7 @@ from tensorflow import keras
 
 size = (28,28)
 
-dataframe = pd.read_csv('database_reduc_rms.csv')
+dataframe = pd.read_csv('database_reduc.csv')
 dataframe = dataframe.to_numpy()
 filas, columnas = dataframe.shape
 label = []
@@ -18,7 +18,7 @@ clase = 0
 list_list = []
 for i in range(filas):
     if clase == dataframe[i,8]:
-        list.append(dataframe[i,:7])
+        list.append(dataframe[i,:8])
     else:
         list = []
         clase = dataframe[i,8]
@@ -29,7 +29,7 @@ for i in range(filas):
 
 dB = []
 for i in range(0,len(list_list)):
-    aux = np.zeros((1,7))
+    aux = np.zeros((1,8))
     aux = np.delete(aux, 0, axis=0)
     for l in list_list[i]:
         aux = np.insert(aux, aux.shape[0] , l, 0)  
@@ -44,10 +44,10 @@ label = np.array(label, dtype=int)
 
 X_train, X_test, y_train, y_test = train_test_split(dB, label, test_size=0.2, shuffle=True)#separa y baraja los datos
 
-print(X_train.shape)
-print(y_train.shape)
-print(X_test.shape)
-print(y_test.shape)
+# print(X_train.shape)
+# print(y_train.shape)
+# print(X_test.shape)
+# print(y_test.shape)
 
 
 X_entrenamiento = X_train.reshape(X_train.shape[0], 28, 28, 1)
@@ -63,20 +63,20 @@ X_pruebas = X_pruebas.astype('float32')
 
 #Modulo de modificacion de "imagenes" en este caso las mueve horizontalmente 
 rango_rotacion = 0
-mov_ancho = 0.25
-mov_alto = 0.0
+mov_ancho = 0.1
+mov_alto = 0.05 #0.05 97%
 rango_acercamiento=[1.0,1.0]
 
 datagen = ImageDataGenerator(
     rotation_range = rango_rotacion,
     width_shift_range = mov_ancho,
     height_shift_range = mov_alto,
-    zoom_range=rango_acercamiento,
+    # zoom_range=rango_acercamiento,
     
 )
 
-
-
+print(Y_entrenamiento.shape)
+print(X_entrenamiento.shape)
 
 filas = 4
 columnas = 8
@@ -102,22 +102,25 @@ plt.show()
 
 
 modelo = tf.keras.models.Sequential([
-    tf.keras.layers.Conv2D(32, (3,3), activation='relu', input_shape=(28, 28, 1)),
+    tf.keras.layers.Conv2D(32, (3,3), activation='relu', input_shape=(28, 28, 1)), #32
     tf.keras.layers.MaxPooling2D(2, 2),
 
-    tf.keras.layers.Conv2D(64, (3,3), activation='relu'),
+    tf.keras.layers.Conv2D(64, (3,3), activation='relu'), #64
     tf.keras.layers.MaxPooling2D(2,2),
 
-    tf.keras.layers.Dropout(0.5),
+    tf.keras.layers.Dropout(0.65), #Dropout 65 mejor encontrado
     tf.keras.layers.Flatten(),
-    tf.keras.layers.Dense(100, activation='relu'),
+    tf.keras.layers.Dense(100, activation='relu'), #100
     tf.keras.layers.Dense(7, activation="softmax")
 ])
 
 #Compilación
 modelo.compile(optimizer='adam',
               loss='categorical_crossentropy',
-              metrics=['accuracy'])
+              metrics=[
+            keras.metrics.CategoricalAccuracy(name="accuracy"),
+            keras.metrics.TopKCategoricalAccuracy(5, name="top-5-accuracy"),
+        ])
 
 print(X_entrenamiento.shape)
 print(Y_entrenamiento.shape)
@@ -135,7 +138,7 @@ np.save("Y_pruebas.npy", Y_pruebas)
 
 
 print("Entrenando modelo...")
-epocas=500
+epocas=1000
 history = modelo.fit(
     data_gen_entrenamiento,
     epochs=epocas,
