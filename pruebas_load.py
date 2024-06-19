@@ -10,6 +10,7 @@ X_pruebas = np.load("X_pruebas.npy")
 Y_pruebas = np.load("Y_pruebas.npy")
 
 print(X_pruebas.shape)
+print(Y_pruebas.shape)
 
 
 print('--------RECARGAR MODELO------')
@@ -26,8 +27,6 @@ print(eval)
 y_res = new_model.predict(X_pruebas)
 y_res = y_res.round()
 
-print(y_res.shape)
-print(Y_pruebas.shape)
 
 
 disp = ConfusionMatrixDisplay.from_predictions(Y_pruebas.argmax(axis=1), y_res.argmax(axis=1))

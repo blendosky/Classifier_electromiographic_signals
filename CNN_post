@@ -1,0 +1,34 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import cv2
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+import tensorflow as tf
+from sklearn.model_selection import train_test_split
+from tensorflow.keras.utils import to_categorical
+from tensorflow import keras
+
+
+dat_entr = np.load('dat_entr_prepros.npy')
+dat_post = np.load('dat_post_prepros.npy')
+
+print(dat_entr)
+
+
+#procedemos a separar en gestos 
+def sep_gestos(dataframe):
+    filas = dataframe.shape[0]
+    label = []
+    clase = 0
+    list_list = []
+    for i in range(0,filas):
+        if clase != dataframe[i,8]:
+            list = []
+            clase = dataframe[i,8]
+            label.append(clase)
+            list_list.append(list) 
+        if clase == dataframe[i,8]:
+            list.append(dataframe[i,:8])
+
+    return list_list
+

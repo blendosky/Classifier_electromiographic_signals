@@ -12,20 +12,19 @@ size = (28,28)
 
 dataframe = pd.read_csv('database_reduc.csv')
 dataframe = dataframe.to_numpy()
-filas, columnas = dataframe.shape
+filas = dataframe.shape[0]
 label = []
 clase = 0
 list_list = []
-for i in range(filas):
-    if clase == dataframe[i,8]:
-        list.append(dataframe[i,:8])
-    else:
+for i in range(0,filas):
+    if clase != dataframe[i,8]:
         list = []
         clase = dataframe[i,8]
         label.append(clase)
-        list_list.append(list)
+        list_list.append(list) 
+    if clase == dataframe[i,8]:
+        list.append(dataframe[i,:8])
     
-
 
 dB = []
 for i in range(0,len(list_list)):
@@ -33,6 +32,7 @@ for i in range(0,len(list_list)):
     aux = np.delete(aux, 0, axis=0)
     for l in list_list[i]:
         aux = np.insert(aux, aux.shape[0] , l, 0)  
+    print(i)
     aux = cv2.resize(aux, dsize=(28, 28), interpolation=cv2.INTER_LINEAR)
     dB.append(aux)  
 
@@ -49,7 +49,7 @@ X_train, X_test, y_train, y_test = train_test_split(dB, label, test_size=0.2, sh
 # print(X_test.shape)
 # print(y_test.shape)
 
-
+#cambia el tamaño de los conjutnso de entrenamiento de gestos * 28*28 a gestos * 28*28*1
 X_entrenamiento = X_train.reshape(X_train.shape[0], 28, 28, 1)
 X_pruebas = X_test.reshape(X_test.shape[0], 28, 28, 1)
 
@@ -71,8 +71,7 @@ datagen = ImageDataGenerator(
     rotation_range = rango_rotacion,
     width_shift_range = mov_ancho,
     height_shift_range = mov_alto,
-    # zoom_range=rango_acercamiento,
-    
+    # zoom_range=rango_acercamiento,   
 )
 
 print(Y_entrenamiento.shape)

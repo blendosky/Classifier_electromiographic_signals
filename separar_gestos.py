@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
-size = (28,28)
 
 dataframe = pd.read_csv('database_reduc.csv') #lee el dataframe
 
@@ -110,8 +109,6 @@ plt.legend(['Canal 1', 'Canal 2', 'Canal 3', 'Canal 4', 'Canal 5', 'Canal 6', 'C
 plt.show()
 
 
-# var_prom_dB1 = []
-# var_prom_dB2 = []
 
 # for gesto in range(1,7):#agrupa las varianzas por gesto y luego calcula el promedio simple
 #     gesto_var = []

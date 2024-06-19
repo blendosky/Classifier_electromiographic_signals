@@ -74,3 +74,4 @@ data_comp.reset_index(inplace=True, drop=True)
 #guardar el dataframe
 data_comp.to_csv('database_reduc.csv', header=True, index=False)
 print(data_comp.shape)
+

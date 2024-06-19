@@ -3,6 +3,11 @@
 
 /datashets
 
+/databases_prepros/modelo_conv2
+/databases_prepros/modelo_conv3
+/databases_prepros/modelo_conv4
+/databases_prepros/modelo_conv5
+
 *.pickle
 
 *.csv
@@ -22,6 +27,8 @@
 /*.npy
 
 /*.rar
+
+/*.npy
 
 
 
